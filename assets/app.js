@@ -633,12 +633,12 @@
         <article class="member-card ${needCall ? "need-call" : ""}">
           <div class="member-top">
             <span class="avatar" style="background:${member.color}">${escapeHtml(member.avatar)}</span>
-            <span class="status-pill ${needCall ? "need-call" : ""}">${escapeHtml(status.status_text || "未更新")}</span>
+            <span class="status-pill ${needCall ? "need-call" : ""}">${escapeHtml(displayStatus(status.status_text))}</span>
           </div>
           <div>
             <h3>${escapeHtml(member.name)}</h3>
             <div class="member-meta">
-              <span>${escapeHtml(status.mood || "心情未写")}</span>
+              <span>${escapeHtml(displayMood(status.mood))}</span>
               <span>${escapeHtml(status.location_text || "位置未写")}</span>
             </div>
           </div>
@@ -666,7 +666,7 @@
     }
     root.innerHTML = calls.map((item) => `
       <div class="call-alert hot">
-        <strong>${escapeHtml(item.display_name)}需要电话</strong>
+            <strong>${escapeHtml(memberOf(item.member_key).name)}需要电话</strong>
         <span>${escapeHtml(item.call_time || "越快越好")} · ${escapeHtml(item.note || "想接一个家里的电话")}</span>
       </div>
     `).join("");
@@ -822,8 +822,8 @@
     const form = $("#statusForm");
     const status = state.statuses.find((item) => item.member_key === state.user.key);
     if (!status) return;
-    form.elements.status_text.value = status.status_text || "平安，在忙";
-    form.elements.mood.value = status.mood || "安稳";
+    form.elements.status_text.value = normalizeStatus(status.status_text);
+    form.elements.mood.value = normalizeMood(status.mood);
     form.elements.location_text.value = status.location_text || "";
     form.elements.note.value = status.note || "";
     form.elements.call_time.value = status.call_time || "";
@@ -866,6 +866,42 @@
 
   function memberOf(key) {
     return MEMBERS.find((item) => item.key === key) || MEMBERS[0];
+  }
+
+  function normalizeStatus(value) {
+    const map = {
+      not_updated: "平安，在忙",
+      safe_busy: "平安，在忙",
+      need_call: "需要电话",
+      miss_home: "想家，想聊聊",
+      working: "在上课/工作",
+      on_the_way: "在路上",
+      resting: "已经休息",
+      tired: "今天有点累"
+    };
+    return map[value] || value || "平安，在忙";
+  }
+
+  function displayStatus(value) {
+    if (value === "not_updated") return "未更新";
+    return normalizeStatus(value || "未更新");
+  }
+
+  function normalizeMood(value) {
+    const map = {
+      stable: "安稳",
+      happy: "开心",
+      busy: "忙碌",
+      missing: "想念",
+      tired: "疲惫",
+      needs_care: "需要关心"
+    };
+    return map[value] || value || "安稳";
+  }
+
+  function displayMood(value) {
+    if (!value) return "心情未写";
+    return normalizeMood(value);
   }
 
   function defaultStatuses() {

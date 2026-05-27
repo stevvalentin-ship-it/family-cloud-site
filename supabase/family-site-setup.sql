@@ -4,7 +4,7 @@ create table if not exists public.family_member_statuses (
   member_key text primary key,
   display_name text not null,
   relation text,
-  status_text text not null default '未更新',
+  status_text text not null default 'not_updated',
   mood text,
   location_text text,
   note text,
@@ -17,8 +17,8 @@ create table if not exists public.family_messages (
   id uuid primary key default gen_random_uuid(),
   author_key text not null,
   author_name text not null,
-  target text not null default '全家',
-  kind text not null default '日常',
+  target text not null default 'all',
+  kind text not null default 'daily',
   body text not null,
   created_at timestamptz not null default now()
 );
@@ -27,8 +27,8 @@ create table if not exists public.family_tasks (
   id uuid primary key default gen_random_uuid(),
   title text not null,
   detail text,
-  assignee text not null default '全家',
-  priority text not null default '中',
+  assignee text not null default 'all',
+  priority text not null default 'medium',
   due_date date,
   done boolean not null default false,
   created_by_key text,
@@ -173,8 +173,8 @@ using (
 insert into public.family_member_statuses
   (member_key, display_name, relation, status_text, mood, location_text, note, call_time, need_call)
 values
-  ('father', '父亲', '父亲', '未更新', '', '', '', '', false),
-  ('mother', '母亲', '母亲', '未更新', '', '', '', '', false),
-  ('me', '我', '在外地上大学', '平安，在忙', '安稳', '', '我在外地也会好好吃饭，看到消息会回。', '', false),
-  ('grandma', '奶奶', '奶奶', '未更新', '安稳', '', '', '', false)
+  ('father', 'father', 'father', 'not_updated', '', '', '', '', false),
+  ('mother', 'mother', 'mother', 'not_updated', '', '', '', '', false),
+  ('me', 'me', 'student_away_from_home', 'safe_busy', 'stable', '', 'initial_status', '', false),
+  ('grandma', 'grandma', 'grandma', 'not_updated', 'stable', '', '', '', false)
 on conflict (member_key) do nothing;
